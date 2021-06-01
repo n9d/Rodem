@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as _ from 'lodash';
+// import * as _ from 'lodash';
 import * as child_process from 'child_process';
 import * as temp from 'temp';
 import * as fs from 'fs';
@@ -45,7 +45,7 @@ function output(code:Code, out:Out){
 				builder.insert(new vscode.Position(code.output[0], 0),`\n\`\`\`output\n${out.stdout}\n\`\`\`\n`)
 			}
 		});
-	
+
 	}
 }
 
@@ -71,19 +71,23 @@ function extract():Code {
 	if (editor){
 		const doc : vscode.TextDocument = editor.document;
 		const newline = "\n"; //NOTE: あとでエディタから改行コードを探って\nのところに置換する
-		const txt = (doc.getText()+"\n```").split(newline); 
+		const txt = (doc.getText()+"\n```").split(newline);
 
 		// NOTE: あとでflatmapで書き換えること
 		const pre = txt.map((x,y)=>{return {text:x,line:y}})
 			.filter(x=>String(x.text).match(/^```.*$/))
 
 		const line = editor.selection.active.line;
-		const start = _.maxBy(pre, x=>x.line>=line?0:x.line)
-		const end = _.minBy(pre, x=>x.line<=line?txt.length-1:x.line)
+		// const start = _.maxBy(pre, x=>x.line>=line?0:x.line)
+		// const end = _.minBy(pre, x=>x.line<=line?txt.length-1:x.line)
+		const start = max_by(pre, x=>x.line>=line?0:x.line);
+		const end = min_by(pre, x=>x.line<=line?txt.length-1:x.line)
 		const lang = (start?.text.match(/```(.+)$/)||[])[1]
-		const next_start = _.minBy(pre, x=>x.line<=Number(end?.line)?txt.length-1:x.line)
-		const next_end = _.minBy(pre, x=>x.line<=Number(next_start?.line)?txt.length-1:x.line)
-		
+		// const next_start = _.minBy(pre, x=>x.line<=Number(end?.line)?txt.length-1:x.line)
+		// const next_end = _.minBy(pre, x=>x.line<=Number(next_start?.line)?txt.length-1:x.line)
+		const next_start = min_by(pre, (x:any)=>x.line<=Number(end?.line)?txt.length-1:x.line)
+		const next_end = min_by(pre, (x:any)=>x.line<=Number(next_start?.line)?txt.length-1:x.line)
+
 		if (start && end && lang && lang!=="output") {
 			return {
 				lang: lang,
@@ -93,4 +97,25 @@ function extract():Code {
 		}
 	}
 	return {lang:"nop",code:"",output:[]};
+}
+
+interface Line{
+	line: number,
+	text: string
+}
+
+function min_by(arr:Line[],func:(arg:Line)=>number):Line{
+	let r=0;
+	for (let i=0; i<arr.length; ++i){
+		r=func(arr[i])<func(arr[r]) ? i : r;
+	}
+	return arr[r];
+}
+
+function max_by(arr:Line[],func:(arg:Line)=>number):Line{
+	let r=0;
+	for (let i=0; i<arr.length; ++i){
+		r=func(arr[i])>func(arr[r]) ? i : r;
+	}
+	return arr[r];
 }
