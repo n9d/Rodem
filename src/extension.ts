@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-// import * as _ from 'lodash';
 import * as child_process from 'child_process';
 import * as temp from 'temp';
 import * as fs from 'fs';
@@ -49,7 +48,7 @@ function output(code:Code, out:Out){
 	}
 }
 
-
+// code実行時のエラー時の処理未実装
 function execute(code:Code):Out {
 	const lang = vscode.workspace.getConfiguration("rodem").lang[code.lang]
 
@@ -78,13 +77,9 @@ function extract():Code {
 			.filter(x=>String(x.text).match(/^```.*$/))
 
 		const line = editor.selection.active.line;
-		// const start = _.maxBy(pre, x=>x.line>=line?0:x.line)
-		// const end = _.minBy(pre, x=>x.line<=line?txt.length-1:x.line)
 		const start = max_by(pre, x=>x.line>=line?0:x.line);
 		const end = min_by(pre, x=>x.line<=line?txt.length-1:x.line)
 		const lang = (start?.text.match(/```(.+)$/)||[])[1]
-		// const next_start = _.minBy(pre, x=>x.line<=Number(end?.line)?txt.length-1:x.line)
-		// const next_end = _.minBy(pre, x=>x.line<=Number(next_start?.line)?txt.length-1:x.line)
 		const next_start = min_by(pre, (x:any)=>x.line<=Number(end?.line)?txt.length-1:x.line)
 		const next_end = min_by(pre, (x:any)=>x.line<=Number(next_start?.line)?txt.length-1:x.line)
 
@@ -99,23 +94,22 @@ function extract():Code {
 	return {lang:"nop",code:"",output:[]};
 }
 
-interface Line{
-	line: number,
-	text: string
+
+
+function max_by<T,U>(arr:T[], func:(arg:T)=>U):T{
+    let [r, m] = [0, func(arr[0])];
+    for(let i=0; i<arr.length; ++i) {
+        let t = func(arr[i]);
+        [r, m] = t > m ? [i, t] : [r, m]
+    }
+    return arr[r];
 }
 
-function min_by(arr:Line[],func:(arg:Line)=>number):Line{
-	let r=0;
-	for (let i=0; i<arr.length; ++i){
-		r=func(arr[i])<func(arr[r]) ? i : r;
-	}
-	return arr[r];
-}
-
-function max_by(arr:Line[],func:(arg:Line)=>number):Line{
-	let r=0;
-	for (let i=0; i<arr.length; ++i){
-		r=func(arr[i])>func(arr[r]) ? i : r;
-	}
-	return arr[r];
+function min_by<T,U>(arr:T[], func:(arg:T)=>U):T{
+    let [r, m] = [0, func(arr[0])];
+    for(let i=0; i<arr.length; ++i) {
+        let t = func(arr[i]);
+        [r, m] = t < m ? [i, t] : [r, m]
+    }
+    return arr[r];
 }
