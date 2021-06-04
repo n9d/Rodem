@@ -40,7 +40,7 @@ function output(code:Code, out:Out){
       const doc : vscode.TextDocument = editor.document;
       const pre = "```";
       const str = out.stdout.match(/\n$/) ? out.stdout : `${out.stdout}\n`; // 改行で終了しないコマンド用
-      const outString = `${pre}result\n${str}${pre}`;
+      const outString = `${pre}results\n${str}${pre}`;
       if (code.output.length === 2){
         builder.replace(new vscode.Range(doc.lineAt(code.output[0]).range.start,doc.lineAt(code.output[1]).range.end), outString);
       }else{
@@ -92,11 +92,11 @@ function extract():Code {
     const nextStart = minBy(pre, (x:any)=>x.line<=Number(end?.line)?txt.length-1:x.line);
     const nextEnd = minBy(pre, (x:any)=>x.line<=Number(nextStart?.line)?txt.length-1:x.line);
 
-    if (start && end && lang && lang!=="result") {
+    if (start && end && lang && lang!=="results") {
       return {
         lang: lang,
         code: txt.slice(start.line+1,end.line).join(newline),
-        output: nextStart?.text.match(/```result$/) && nextEnd?.text.match(/```/) && nextStart.line<nextEnd.line? [nextStart.line,nextEnd.line] : [end.line+1]
+        output: nextStart?.text.match(/```results$/) && nextEnd?.text.match(/```/) && nextStart.line<nextEnd.line? [nextStart.line,nextEnd.line] : [end.line+1]
       };
     }
   }
