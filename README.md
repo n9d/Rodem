@@ -1,8 +1,10 @@
 # Rodem
 
-babel-like extension in Markdown(.md)
+babel-like extension in Markdown(.md).
 
-execute code in markdown on vscode
+babel is org-mode extention in emacs.
+
+execute code in markdown on vscode.
 
 
 ## Features
@@ -21,10 +23,16 @@ Press `F5` or `Ctrl-P -> Rodem: execute code` to execute
 
 ## default laungage
 
-- javascript(js)
+- javascript(js) -> `node`
+- typescript(ts) -> `ts-node`
 - ruby(rb)
 - bash(sh)
 - python(py)
+
+### Experimental function
+- rails(rails) -> `rails console`
+- django(django) -> `python manage.py shell`
+- django extension(django+) -> `python manage.py shell_plus`
 
 ## Requirements
 

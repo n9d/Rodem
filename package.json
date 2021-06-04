@@ -37,9 +37,13 @@
 					"type": "object",
 					"default": {
 						"js": "node",
+						"ts": "ts-node",
 						"rb": "ruby",
 						"sh": "bash",
-						"py": "python"
+						"py": "python",
+						"rails": "rails console",
+						"django": "python manage.py shell",
+						"django+": "python manage.py shell_plus"
 					}
 				}
 			}
