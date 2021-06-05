@@ -44,7 +44,7 @@ function output(code:Code, out:Out){
       if (code.output.length === 2){
         builder.replace(new vscode.Range(doc.lineAt(code.output[0]).range.start,doc.lineAt(code.output[1]).range.end), outString);
       }else{
-        builder.insert(new vscode.Position(code.output[0], 0), outString);
+        builder.insert(new vscode.Position(code.output[0], 0), `\n${outString}`);
       }
     });
 
@@ -63,7 +63,10 @@ function execute(code:Code):Out {
     try {
       // cat方式では bash実行時に途中のエラーが拾えない bash -C で対応する？
       // 現時点では安全のため10秒でコマンドを強制終了する
-      stdout = child_process.execSync(`${cat} | ${lang}`, {timeout:10000}).toString();
+      const workspaceFolders= vscode.workspace.workspaceFolders;
+      if (workspaceFolders){
+        stdout = child_process.execSync(`cd ${workspaceFolders[0].uri.fsPath}; ${cat} | ${lang}`, {timeout:10000}).toString();
+      }
     } catch (e) {
       // エラー時のメッセージに改行を入れることができない。
       vscode.window.showErrorMessage(`${e}`.replace(cat, "\n\n"));
