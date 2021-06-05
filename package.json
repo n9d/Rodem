@@ -4,7 +4,7 @@
 	"description": "Run the code on preformatted text in markdown.",
 	"publisher": "n9d",
 	"repository": "https://github.com/n9d/Rodem",
-	"version": "0.1.12",
+	"version": "0.2.0",
 	"engines": {
 		"vscode": "^1.56.0"
 	},
