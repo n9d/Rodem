@@ -9,7 +9,7 @@
 		"vscode": "^1.56.0"
 	},
 	"categories": [
-		"Other"
+		"Programming Languages"
 	],
 	"activationEvents": [
 		"onCommand:rodem.executecode"
