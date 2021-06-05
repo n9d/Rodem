@@ -42,10 +42,16 @@ none
 
 if you would like to add language to this extension, edit `rodem.lang` in `settings.json`.
 
-
+ex:
+```
+    "rodem.lang": {
+        "sh": "bash",
+        "bash":"bash",
+        "zsh":"zsh",
+    }
+```
 ## Release Notes
 
 ### 0.1
 
 Initial release of Rodem
-
