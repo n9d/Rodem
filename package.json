@@ -1,7 +1,7 @@
 {
 	"name": "rodem",
 	"displayName": "rodem",
-	"description": "",
+	"description": "Run the code on preformatted text in markdown.",
 	"publisher": "n9d",
 	"repository": "https://github.com/n9d/Rodem",
 	"version": "0.1.11",
