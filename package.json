@@ -43,7 +43,8 @@
 						"py": "python",
 						"rails": "rails console",
 						"django": "python manage.py shell",
-						"django+": "python manage.py shell_plus"
+						"django+": "python manage.py shell_plus",
+						"django++": "python manage.py shell_plus --print-sql"
 					}
 				}
 			}
