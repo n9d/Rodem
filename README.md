@@ -13,12 +13,12 @@ execute code in markdown on vscode.
 
 write code
 
-![test screenshot](https://i.ibb.co/grdYxhz/rodem-javascript.png)
+![test screenshot](https://n9d.github.io/Rodem/rodem-javascript.png)
 
 
 Press `F5` or `Ctrl-P -> Rodem: execute code` to execute
 
-![test screenshot](https://i.ibb.co/dQ39hPT/rodem-javascript2.png)
+![test screenshot](https://n9d.github.io/Rodem/rodem-javascript2.png)
 
 
 ## default laungage
