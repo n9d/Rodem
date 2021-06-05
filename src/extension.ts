@@ -39,12 +39,13 @@ function output(code:Code, out:Out){
     editor.edit(builder => {
       const doc : vscode.TextDocument = editor.document;
       const pre = "```";
-      const str = out.stdout.match(/\n$/) ? out.stdout : `${out.stdout}\n`; // 改行で終了しないコマンド用
-      const outString = `${pre}results\n${str}${pre}`;
+      const stdout = out.status === "error" ? "" : out.stdout.match(/\n$/) ? out.stdout : `${out.stdout}\n`;
+      const stderr = out.status !== "error" ? "" : out.stderr.match(/\n$/) ? out.stderr : `${out.stderr}\n`;
+      const outString = `${pre}results\n${stdout}${stderr}${pre}`;
       if (code.output.length === 2){
         builder.replace(new vscode.Range(doc.lineAt(code.output[0]).range.start,doc.lineAt(code.output[1]).range.end), outString);
       }else{
-        builder.insert(new vscode.Position(code.output[0], 0), `\n${outString}`);
+        builder.insert(new vscode.Position(code.output[0], 0), `\n${outString}\n`);
       }
     });
 
@@ -58,23 +59,28 @@ function execute(code:Code):Out {
     temp.track();
     const tempFile = temp.openSync('exec_code');
     fs.writeSync(tempFile.fd,code.code);
-    const cat = `cat ${tempFile.path}`;
-    let stdout = "";
+
+    let [command, stdout, stderr, status] = ["", "", "", ""];
+    const workspaceFolders= vscode.workspace.workspaceFolders;
+    if (workspaceFolders){
+      command = `cd ${workspaceFolders[0].uri.fsPath}; cat ${tempFile.path} | ${lang}`;
+    }
     try {
-      // cat方式では bash実行時に途中のエラーが拾えない bash -C で対応する？
+      // cat方式では bash実行時に途中のエラーが拾えない bash -C で対応する？→だめそう
       // 現時点では安全のため10秒でコマンドを強制終了する
-      const workspaceFolders= vscode.workspace.workspaceFolders;
       if (workspaceFolders){
-        stdout = child_process.execSync(`cd ${workspaceFolders[0].uri.fsPath}; ${cat} | ${lang}`, {timeout:10000}).toString();
+        stdout = child_process.execSync(`${command}`, {timeout:10000}).toString();
+        status = "success";
       }
     } catch (e) {
-      // エラー時のメッセージに改行を入れることができない。
-      vscode.window.showErrorMessage(`${e}`.replace(cat, "\n\n"));
+      // vscode.window.showErrorMessage(`${e}`.replace(cat, "\n\n")); // ダイアログは改行できないので中止
+      stderr = `${e}`.replace(command, "");
+      status = "error";
     }
     temp.cleanupSync();
-    return {stdout:stdout,stderr:"",status:"success"};
+    return {stdout:stdout, stderr: stderr, status: status};
   }
-  return {stdout:"",stderr:"", status:"error"};
+  return {stdout:"undefined lang",stderr:"", status:"error"};
 }
 
 function extract():Code {
@@ -84,7 +90,6 @@ function extract():Code {
     const newline = "\n"; //NOTE: あとでエディタから改行コードを探って\nのところに置換する なんかmacでも動く不思議
     const txt = (doc.getText()+"\n```").split(newline);
 
-    // NOTE: あとでflatmapで書き換えること
     const pre = txt.map((x,y)=>{return {text:x,line:y};})
       .filter(x=>String(x.text).match(/^```.*$/));
 

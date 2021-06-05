@@ -1,6 +1,7 @@
 # Rodem
 
-Run the code on preformatted text in markdown
+Run the code on preformatted text in markdown.
+
 babel-like extension in Markdown(.md).
 
 babel is org-mode extention in emacs.
@@ -25,9 +26,9 @@ Press `F5` or `Ctrl-P -> Rodem: execute code` to execute
 
 - javascript(js) -> `node`
 - typescript(ts) -> `ts-node`
-- ruby(rb)
-- bash(sh)
-- python(py)
+- ruby(rb) -> `ruby`
+- bash(sh) -> `bash`
+- python(py) -> `python`
 
 ### Experimental function
 - rails(rails) -> `rails console`
