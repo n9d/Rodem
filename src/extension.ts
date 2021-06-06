@@ -45,7 +45,7 @@ function output(code:Code, out:Out){
       if (code.output.length === 2) {
         builder.replace(new vscode.Range(doc.lineAt(code.output[0]).range.start,doc.lineAt(code.output[1]).range.end), outString);
       } else {
-        if  ((doc.getText()+"\n```").split("\n").length - 1 === code.output[0]) {
+        if  ((doc.getText()+"\n```").split("\n").length - 1 === code.output[0]) { //最終行にインサートするときのみ \nを挿入
           outString = `\n${outString}`;
         }
         builder.insert(new vscode.Position(code.output[0], 0), `${outString}\n`);
