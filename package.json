@@ -5,7 +5,7 @@
 	"publisher": "n9d",
 	"repository": "https://github.com/n9d/Rodem",
 	"version": "0.3.3",
-	"icon": "https://n9d.github.io/Rodem/images/rodem-logo.png",
+	"icon": "images/rodem-logo.png",
 	"engines": {
 		"vscode": "^1.56.0"
 	},
