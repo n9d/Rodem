@@ -41,14 +41,16 @@ function output(code:Code, out:Out){
       const pre = "```";
       const stdout = out.status === "error" ? "" : out.stdout.match(/\n$/) ? out.stdout : `${out.stdout}\n`;
       const stderr = out.status !== "error" ? "" : out.stderr.match(/\n$/) ? out.stderr : `${out.stderr}\n`;
-      const outString = `${pre}results\n${stdout}${stderr}${pre}`;
-      if (code.output.length === 2){
+      let outString = `${pre}results\n${stdout}${stderr}${pre}`;
+      if (code.output.length === 2) {
         builder.replace(new vscode.Range(doc.lineAt(code.output[0]).range.start,doc.lineAt(code.output[1]).range.end), outString);
-      }else{
-        builder.insert(new vscode.Position(code.output[0], 0), `\n${outString}\n`);
+      } else {
+        if  ((doc.getText()+"\n```").split("\n").length - 1 === code.output[0]) {
+          outString = `\n${outString}`;
+        }
+        builder.insert(new vscode.Position(code.output[0], 0), `${outString}\n`);
       }
     });
-
   }
 }
 
