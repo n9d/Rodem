@@ -43,9 +43,9 @@
 						"sh": "bash",
 						"py": "python",
 						"rails": "rails console",
-						"django": "python manage.py shell",
-						"django+": "python manage.py shell_plus",
-						"django++": "python manage.py shell_plus --print-sql"
+						"django": "python $(find . -name manage.py) shell",
+						"django+": "python $(find . -name manage.py) shell_plus",
+						"django++": "python $(find . -name manage.py) shell_plus --print-sql"
 					}
 				}
 			}
