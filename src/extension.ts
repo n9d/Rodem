@@ -22,7 +22,8 @@ export function deactivate() {}
 interface Code{
   lang: string,
   code: string,
-  output: number[]
+  output: number[],
+  eof: boolean
 }
 
 interface Out{
@@ -35,7 +36,6 @@ function output(code:Code, out:Out){
   const editor = vscode.window.activeTextEditor;
 
   if (editor) {
-
     editor.edit(builder => {
       const doc : vscode.TextDocument = editor.document;
       const pre = "```";
@@ -45,10 +45,8 @@ function output(code:Code, out:Out){
       if (code.output.length === 2) {
         builder.replace(new vscode.Range(doc.lineAt(code.output[0]).range.start,doc.lineAt(code.output[1]).range.end), outString);
       } else {
-        if  ((doc.getText()+"\n```").split("\n").length - 1 === code.output[0]) { //最終行にインサートするときのみ \nを挿入
-          outString = `\n${outString}`;
-        }
-        builder.insert(new vscode.Position(code.output[0], 0), `${outString}\n`);
+        // resultブロックがない場合、最終行において改行をどう入れるかがちょっと面倒
+        builder.insert(new vscode.Position(code.output[0], 0), `${code.eof?"\n":""}${outString}${code.eof?"":"\n"}`);
       }
     });
   }
@@ -68,7 +66,7 @@ function execute(code:Code):Out {
       command = `cd ${workspaceFolders[0].uri.fsPath}; cat ${tempFile.path} | ${lang}`;
     }
     try {
-      // cat方式では bash実行時に途中のエラーが拾えない bash -C で対応する？→だめそう
+      // cat方式では bashのエラー時に途中までの実行結果が拾えない bash -C で対応する？→だめそう
       // 現時点では安全のため10秒でコマンドを強制終了する
       if (workspaceFolders){
         stdout = child_process.execSync(`${command}`, {timeout:10000}).toString();
@@ -82,7 +80,7 @@ function execute(code:Code):Out {
     temp.cleanupSync();
     return {stdout:stdout, stderr: stderr, status: status};
   }
-  return {stdout:"undefined lang",stderr:"", status:"error"};
+  return {stdout:"", stderr:`Error: can't be executed ${code.lang}.`,  status:"error"};
 }
 
 function extract():Code {
@@ -103,14 +101,23 @@ function extract():Code {
     const nextEnd = minBy(pre, (x:any)=>x.line<=Number(nextStart?.line)?txt.length-1:x.line);
 
     if (start && end && lang && lang!=="results") {
+      let output: number[] = [];
+      let eof = false;
+        if (nextStart?.text.match(/```results$/) && nextEnd?.text.match(/```/) && nextStart.line<nextEnd.line) {
+        output = [nextStart.line,nextEnd.line];
+      } else {
+        output = [end.line+1];
+        eof = txt.length-1===end.line+1 ? true : false;
+      }
       return {
         lang: lang,
         code: txt.slice(start.line+1,end.line).join(newline),
-        output: nextStart?.text.match(/```results$/) && nextEnd?.text.match(/```/) && nextStart.line<nextEnd.line? [nextStart.line,nextEnd.line] : [end.line+1]
+        output: output,
+        eof: eof
       };
     }
   }
-  return {lang:"nop",code:"",output:[]};
+  return {lang: "nop", code: "", output: [], eof: false};
 }
 
 function maxBy<T,U>(arr:T[], func:(arg:T)=>U):T{
